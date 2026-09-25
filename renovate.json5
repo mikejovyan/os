@@ -1,0 +1,32 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  assignees: ["mikejovyan"],
+  extends: ["config:recommended", "helpers:pinGitHubActionDigests"],
+  packageRules: [
+    {
+      matchUpdateTypes: ["minor", "patch", "digest"],
+      automerge: true,
+    },
+    {
+      matchManagers: ["github-actions"],
+      commitMessageTopic: "{{replace 'https://data.forgejo.org/' '' depName}} action",
+      semanticCommitType: "ci",
+    },
+    // The sign flags in build.yml work around rpm-ostree#5509: bump cosign by hand and check signing
+    {
+      matchPackageNames: ["sigstore/cosign"],
+      enabled: false,
+    },
+    // The next Fedora major is Rawhide until it branches, so majors wait for approval on the dashboard
+    {
+      matchPackageNames: ["quay.io/fedora-ostree-desktops/silverblue"],
+      matchUpdateTypes: ["major"],
+      dependencyDashboardApproval: true,
+    },
+  ],
+  prHourlyLimit: 0,
+  semanticCommitScope: null,
+  semanticCommits: "enabled",
+  // List each major on the dashboard, otherwise only the newest one (Rawhide) is offered
+  separateMultipleMajor: true,
+}
