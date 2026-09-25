@@ -1,0 +1,42 @@
+name: Verify image builds
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ forgejo.workflow }}-${{ forgejo.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.filter.outputs.image }}
+    steps:
+      - id: filter
+        uses: https://github.com/dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4
+        with:
+          filters: |
+            image:
+              - 'images/**'
+              - '.forgejo/workflows/**'
+
+  # A skipped job counts as passing for a required check
+  build:
+    needs: changes
+    if: needs.changes.outputs.image == 'true'
+    runs-on: ubuntu-latest
+    env:
+      IMAGE: ${{ vars.REGISTRY }}/${{ forgejo.repository_owner }}/silverblue
+    steps:
+      - uses: https://data.forgejo.org/docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        with:
+          context: "{{defaultContext}}:images/silverblue"
+          file: Containerfile
+          platforms: linux/amd64
+          push: false
+          provenance: false
+          sbom: false
+          build-args: |
+            IMAGE_REF=${{ env.IMAGE }}
