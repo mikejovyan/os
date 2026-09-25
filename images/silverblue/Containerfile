@@ -1,0 +1,21 @@
+# Build inputs, bind-mounted in below — never become image layers
+FROM scratch AS ctx
+COPY build.sh /build.sh
+COPY system_files /system_files
+COPY cosign.pub /cosign.pub
+
+# Base image, bumped by Renovate
+FROM quay.io/fedora-ostree-desktops/silverblue:44.20260925.0
+
+# Avoid committing registry
+ARG IMAGE_REF
+
+# /run is tmpfs so dnf5 state doesn't end up in the image (bootc lint)
+RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
+    --mount=type=cache,dst=/var/cache \
+    --mount=type=cache,dst=/var/log \
+    --mount=type=tmpfs,dst=/tmp \
+    --mount=type=tmpfs,dst=/run/dnf \
+    /ctx/build.sh
+
+RUN --mount=type=tmpfs,dst=/run --network=none bootc container lint
