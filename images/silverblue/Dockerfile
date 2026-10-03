@@ -3,7 +3,7 @@ COPY build.sh /build.sh
 COPY system_files /system_files
 COPY cosign.pub /cosign.pub
 
-FROM quay.io/fedora-ostree-desktops/silverblue:44.20261002.0@sha256:a328107e8d1ac821e347996eca533cbaff140e7fbe769fabcff552621683bd42
+FROM quay.io/fedora-ostree-desktops/silverblue:44.20261003.0@sha256:3507df337f20cb801647d1e773eff40f4c13560af311ca86d128f27928913275
 
 # Avoid committing registry
 ARG IMAGE_REF
