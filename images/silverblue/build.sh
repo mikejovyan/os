@@ -53,3 +53,7 @@ dnf5 install -y \
     "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${fedora_version}.noarch.rpm"
 
 dnf5 install -y --allowerasing ffmpegthumbnailer libheif-freeworld libheif-tools
+
+wget --no-hsts --quiet -O- \
+    "https://github.com/FrameworkComputer/framework-system/releases/download/v${FRAMEWORK_TOOL_VERSION}/framework_tool" |
+    install -Dm0755 /dev/stdin /usr/bin/framework_tool

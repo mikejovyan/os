@@ -1,7 +1,10 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   assignees: [ "mikejovyan" ],
-  extends: [ "local>renovate-bot/renovate_config" ],
+  extends: [
+    "local>renovate-bot/renovate_config",
+    "customManagers:dockerfileVersions",
+  ],
   packageRules: [
     // The sign flags in build.yml work around rpm-ostree#5509: bump cosign by hand and check signing
     {

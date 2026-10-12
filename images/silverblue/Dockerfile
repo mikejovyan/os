@@ -8,6 +8,9 @@ FROM quay.io/fedora-ostree-desktops/silverblue:44.20261012.0@sha256:b400038f1070
 # Avoid committing registry
 ARG IMAGE_REF
 
+# renovate: datasource=github-releases depName=FrameworkComputer/framework-system
+ARG FRAMEWORK_TOOL_VERSION=0.6.5
+
 RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=cache,dst=/var/cache \
     --mount=type=cache,dst=/var/log \
