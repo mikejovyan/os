@@ -1,23 +1,12 @@
-# os
+# silverblue
 
-Bootable container images.
-
-## Images
-
-| Image | Description |
-|---|---|
-| [silverblue](images/silverblue/) | Custom Fedora Silverblue image |
-
-## silverblue
-
-Custom [Fedora Silverblue](https://fedoraproject.org/atomic-desktops/silverblue/) image.
+Custom [Fedora Silverblue](https://fedoraproject.org/atomic-desktops/silverblue/) bootc image, built with [BlueBuild](https://blue-build.org/).
 
 ### Features
 
 - Fedora Silverblue 44 as the base, bumped daily
 - Signed with cosign; the system policy only accepts this image
-- OS updates stage automatically; GNOME Software's update handling is off
-- Firefox RPM removed, apps come from Flathub
+- Firefox RPM removed; GNOME apps and Firefox come from Flathub automatically on first boot
 - RPM Fusion repos enabled, with HEIC and video thumbnails
 - Fedora's ostree remote added, so you can rebase back to stock Fedora
 
@@ -48,56 +37,16 @@ sudo rpm-ostree rebase ostree-image-signed:docker://$IMAGE:latest
 systemctl reboot
 ```
 
-### Package management
-
-- **OS updates:** GNOME Software's update handling is disabled. `rpm-ostreed-automatic` stages daily updates, which are applied on the next reboot. Undo an update with `rpm-ostree rollback`, or rebase to Fedora Silverblue with `sudo rpm-ostree rebase fedora:fedora/44/x86_64/silverblue`.
-
-- **GUI apps:** intended to be run as Flathub Flatpaks installed with `flatpak install ...`. To switch from Fedora's Flatpaks to Flathub, run these once:
-
-1. Add the Flathub remote
-
-```shell
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-```
-
-2. Enable the Flathub remote
-
-```shell
-flatpak remote-modify --enable flathub
-```
-
-3. Replace the Fedora Flatpaks with Flathub
-
-```shell
-flatpak install --reinstall flathub $(flatpak list --app-runtime=org.fedoraproject.Platform --columns=application)
-```
-
-4. Remove unused runtimes
-
-```shell
-flatpak uninstall --unused
-```
-
-5. Disable the Fedora remote
-
-```shell
-flatpak remote-modify --disable fedora
-```
-
 ### Verification
 
 These images are signed with sigstore's [cosign](https://docs.sigstore.dev/cosign/overview/). You can verify the signature by running the following command:
 
 ```shell
 IMAGE=<registry>/mikejovyan/silverblue
-cosign verify --key images/silverblue/cosign.pub $IMAGE:latest
+cosign verify --key cosign.pub $IMAGE:latest
 ```
 
 ### References
 
+- [https://github.com/blue-build/template](https://github.com/blue-build/template)
 - [https://github.com/ublue-os/image-template](https://github.com/ublue-os/image-template)
-- [https://github.com/astrovm/amyos](https://github.com/astrovm/amyos)
-- [https://github.com/bsherman/bos](https://github.com/bsherman/bos)
-- [https://github.com/bketelsen/homer](https://github.com/bketelsen/homer)
-- [https://github.com/m2Giles/m2os](https://github.com/m2Giles/m2os)
-- [https://github.com/Venefilyn/veneos](https://github.com/Venefilyn/veneos)

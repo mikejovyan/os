@@ -1,49 +1,36 @@
 name: Build and push images
 
 on:
+  schedule:
+    - cron: "0 6 * * *"
   push:
     branches: [main]
-    paths:
-      - .forgejo/workflows/build.yml
-      - 'images/**'
+    paths-ignore:
+      - "**.md"
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ forgejo.workflow }}-${{ forgejo.ref }}
   cancel-in-progress: ${{ forgejo.event_name == 'pull_request' }}
 
 jobs:
-  detect-changes:
+  build-and-push:
     runs-on: ubuntu-latest
-    outputs:
-      # "none" keeps the matrix non-empty, so build-and-push always reports a status
-      images: ${{ steps.filter.outputs.changes == '[]' && '["none"]' || steps.filter.outputs.changes }}
+    env:
+      IMAGE: ${{ vars.REGISTRY }}/${{ forgejo.repository_owner }}/silverblue
     steps:
       - uses: https://data.forgejo.org/actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
 
-      - id: filter
-        uses: https://github.com/dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
-        with:
-          base: ${{ forgejo.event_name == 'push' && forgejo.ref || '' }}
-          filters: |
-            silverblue:
-              - 'images/silverblue/**'
-              - '.forgejo/workflows/build.yml'
+      - name: Install bluebuild CLI
+        run: docker run --pull always --rm ghcr.io/blue-build/cli:latest-installer | bash
 
-  build-and-push:
-    needs: detect-changes
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        image: ${{ fromJson(needs.detect-changes.outputs.images) }}
-    env:
-      IMAGE: ${{ vars.REGISTRY }}/${{ forgejo.repository_owner }}/${{ matrix.image }}
-    steps:
+      - name: Generate Containerfile from recipe
+        run: bluebuild generate ./recipes/recipe.yml -o Containerfile
+
       - name: Log in to registry
-        if: matrix.image != 'none' && forgejo.event_name == 'push'
+        if: forgejo.event_name == 'push'
         uses: https://data.forgejo.org/docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ${{ forgejo.server_url }}
@@ -51,34 +38,32 @@ jobs:
           password: ${{ secrets.PACKAGE_TOKEN }}
 
       - name: Build and push
-        if: matrix.image != 'none'
         id: build
         uses: https://data.forgejo.org/docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
-          context: "{{defaultContext}}:images/${{ matrix.image }}"
-          file: Dockerfile
+          context: .
+          file: Containerfile
           platforms: linux/amd64
           push: ${{ forgejo.event_name == 'push' }}
           provenance: false
           sbom: false
           build-args: |
-            IMAGE_REF=${{ env.IMAGE }}
+            IMAGE_REGISTRY=${{ vars.REGISTRY }}/${{ forgejo.repository_owner }}
           tags: ${{ env.IMAGE }}:latest
 
       # The cosign installer needs envsubst
       - name: Install envsubst
-        if: matrix.image != 'none' && forgejo.event_name == 'push'
+        if: forgejo.event_name == 'push'
         run: apt-get update -qq && apt-get install -y -qq gettext-base
 
       - name: Install cosign
-        if: matrix.image != 'none' && forgejo.event_name == 'push'
+        if: forgejo.event_name == 'push'
         uses: https://data.forgejo.org/sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
         with:
-          # Bumped by hand, like Bazzite. The sign flags below work around rpm-ostree#5509, container-libs#388
           cosign-release: v3.1.3
 
       - name: Sign image
-        if: matrix.image != 'none' && forgejo.event_name == 'push'
+        if: forgejo.event_name == 'push'
         env:
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           # Cosign prompts when this is unset
