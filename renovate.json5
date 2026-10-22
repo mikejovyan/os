@@ -9,10 +9,10 @@
       customType: "regex",
       managerFilePatterns: [ "/^recipes/.*\\.ya?ml$/" ],
       matchStrings: [
-        "base-image:\\s*(?<depName>\\S+)\\s*\\n\\s*image-version:\\s*[\"']?(?<currentValue>\\d+)[\"']?",
+        "# renovate: datasource=(?<datasource>[a-zA-Z0-9-._]+?) depName=(?<depName>[^\\s]+?)(?: versioning=(?<versioning>[^\\s]+?))?(?: extractVersion=(?<extractVersion>[^\\s]+?))?(?: registryUrl=(?<registryUrl>[^\\s]+?))?\\s*\\n\\s*image-version:\\s*[\"']?(?<currentValue>\\d+)[\"']?",
       ],
-      datasourceTemplate: "docker",
     },
+  ],  
   packageRules: [
     // The sign flags in build.yml work around rpm-ostree#5509: bump cosign by hand and check signing
     {
