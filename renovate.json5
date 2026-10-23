@@ -7,20 +7,22 @@
   customManagers: [
     {
       customType: "regex",
-      managerFilePatterns: [ "/^recipes/.*\\.ya?ml$/" ],
+      managerFilePatterns: [ "/^recipes/.*\\.yml$/" ],
       matchStrings: [
         "# renovate: datasource=(?<datasource>[a-zA-Z0-9-._]+?) depName=(?<depName>[^\\s]+?)(?: versioning=(?<versioning>[^\\s]+?))?(?: extractVersion=(?<extractVersion>[^\\s]+?))?(?: registryUrl=(?<registryUrl>[^\\s]+?))?\\s*\\n\\s*image-version:\\s*[\"']?(?<currentValue>\\d+)[\"']?",
       ],
     },
   ],  
   packageRules: [
-    // The sign flags in build.yml work around rpm-ostree#5509: bump cosign by hand and check signing
+    {
+      matchFileNames: [ "recipes/**/*.yml" ],
+      pinDigests: false,
+    },
     {
       matchPackageNames: [ "sigstore/cosign" ],
       enabled: false,
     },
   ],
-
-  // List each major on the dashboard, otherwise only the newest one (Rawhide) is offered
+  // List each major on the dashboard
   separateMultipleMajor: true,
 }
