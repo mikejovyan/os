@@ -23,11 +23,11 @@ jobs:
     steps:
       - uses: https://data.forgejo.org/actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Install bluebuild CLI
-        run: docker run --pull always --rm ghcr.io/blue-build/cli:latest-installer | bash
-
       - name: Generate Containerfile from recipe
-        run: bluebuild generate ./recipes/recipe.yml -o Containerfile
+        uses: ./.forgejo/actions/bluebuild-generate
+        with:
+          recipe: ./recipes/recipe.yml
+          output: Containerfile
 
       - name: Log in to registry
         if: forgejo.event_name == 'push'
@@ -66,9 +66,5 @@ jobs:
         if: forgejo.event_name == 'push'
         env:
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-          # Cosign prompts when this is unset
-          COSIGN_PASSWORD: ""
           DIGEST: ${{ steps.build.outputs.digest }}
-        run: |
-          cosign sign --yes --new-bundle-format=false --use-signing-config=false \
-            --key env://COSIGN_PRIVATE_KEY "${IMAGE}@${DIGEST}"
+        run: cosign sign --yes --new-bundle-format=false --use-signing-config=false --key env://COSIGN_PRIVATE_KEY "${IMAGE}@${DIGEST}"
