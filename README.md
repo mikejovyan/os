@@ -9,6 +9,8 @@ Custom [Fedora Silverblue](https://fedoraproject.org/atomic-desktops/silverblue/
 - Firefox RPM removed; GNOME apps and Firefox come from Flathub automatically on first boot
 - RPM Fusion repos enabled, with HEIC and video thumbnails
 - Fedora's ostree remote added, so you can rebase back to stock Fedora
+- Updates automatically via bootc and Flatpak roughly every 8 hours, skipping metered connections (not shown in GNOME Software)
+- udev rules for Logitech wireless receivers (Solaar-compatible)
 
 ### Install
 
