@@ -25,6 +25,7 @@ modules:
         - ffmpegthumbnailer
         - libheif-freeworld
         - libheif-tools
+        - solaar-udev
     remove:
       packages:
         - fedora-flathub-remote
