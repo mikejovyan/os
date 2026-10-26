@@ -27,6 +27,9 @@ modules:
         - libheif-tools
     remove:
       packages:
+        - fedora-flathub-remote
+        - fedora-third-party
+        - fedora-workstation-repositories
         - firefox
         - gnome-software-rpm-ostree
         - totem-video-thumbnailer
