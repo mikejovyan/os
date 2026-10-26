@@ -28,6 +28,8 @@ modules:
     remove:
       packages:
         - firefox
+        - gnome-software-rpm-ostree
+        - totem-video-thumbnailer
 
   - type: default-flatpaks
     configurations:
