@@ -23,11 +23,19 @@ jobs:
     steps:
       - uses: https://data.forgejo.org/actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Install BlueBuild
+        run: |
+          docker create --name blue-build-installer ghcr.io/blue-build/cli:v0.9-installer
+          sudo docker cp blue-build-installer:/out/bluebuild /usr/bin/bluebuild
+          docker rm blue-build-installer
+          bluebuild --version
+
       - name: Generate Containerfile from recipe
-        uses: ./.forgejo/actions/bluebuild-generate
-        with:
-          recipe: ./recipes/recipe.yml
-          output: Containerfile
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
+            unset GITHUB_ACTIONS
+          fi
+          bluebuild generate ./recipes/recipe.yml -o Containerfile
 
       - name: Log in to registry
         if: forgejo.event_name == 'push'
