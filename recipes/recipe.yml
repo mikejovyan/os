@@ -16,6 +16,17 @@ modules:
       - source: system
         destination: /
 
+  - type: systemd
+    system:
+      masked:
+        - rpm-ostreed-automatic.timer
+      enabled:
+        - bootc-fetch-apply-updates.timer
+        - flatpak-system-updates.timer
+    user:
+      enabled:
+        - flatpak-user-updates.timer
+
   - type: dnf
     repos:
       nonfree: rpmfusion
