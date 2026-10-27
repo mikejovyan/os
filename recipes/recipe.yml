@@ -43,13 +43,14 @@ modules:
         - fedora-third-party
         - fedora-workstation-repositories
         - firefox
-        - gnome-software-rpm-ostree
+        - gnome-software
         - totem-video-thumbnailer
 
   - type: default-flatpaks
     configurations:
       - scope: system
         install:
+          - io.github.kolunmi.Bazaar
           - org.gnome.Calculator
           - org.gnome.Characters
           - org.gnome.Connections
