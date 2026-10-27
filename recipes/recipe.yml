@@ -50,6 +50,7 @@ modules:
     configurations:
       - scope: system
         install:
+          - io.github.kolunmi.Bazaar
           - org.gnome.Calculator
           - org.gnome.Characters
           - org.gnome.Connections
