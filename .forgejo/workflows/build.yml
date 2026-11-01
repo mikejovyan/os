@@ -38,7 +38,7 @@ jobs:
           bluebuild generate ./recipes/recipe.yml -o Containerfile
 
       - name: Log in to registry
-        if: forgejo.event_name == 'push'
+        if: forgejo.event_name != 'pull_request'
         uses: https://data.forgejo.org/docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ${{ forgejo.server_url }}
@@ -52,7 +52,7 @@ jobs:
           context: .
           file: Containerfile
           platforms: linux/amd64
-          push: ${{ forgejo.event_name == 'push' }}
+          push: ${{ forgejo.event_name != 'pull_request' }}
           provenance: false
           sbom: false
           build-args: |
@@ -61,17 +61,17 @@ jobs:
 
       # The cosign installer needs envsubst
       - name: Install envsubst
-        if: forgejo.event_name == 'push'
+        if: forgejo.event_name != 'pull_request'
         run: apt-get update -qq && apt-get install -y -qq gettext-base
 
       - name: Install cosign
-        if: forgejo.event_name == 'push'
+        if: forgejo.event_name != 'pull_request'
         uses: https://data.forgejo.org/sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
         with:
           cosign-release: v3.1.4
 
       - name: Sign image
-        if: forgejo.event_name == 'push'
+        if: forgejo.event_name != 'pull_request'
         env:
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           # Cosign prompts when this is unset
